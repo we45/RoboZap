@@ -9,6 +9,9 @@ ${TARGET}  http://104.236.85.150/
 ${CONTEXT}  CTF2
 ${BASE_URL}  http://104.236.85.150/
 ${LOGIN_URL}  http://104.236.85.150/login/
+${SCANPOLICY}  Minimal OWASP Policy
+${APPNAME}  weCare
+${TINYPATH}  /Users/abhaybhargav/Documents/vul_db.json
 
 
 *** Test Cases ***
@@ -49,10 +52,11 @@ ZAP Contextualize
 
 ZAP Active Scan
     [Tags]  zap_scan
-    ${scan_id}=  zap start ascan  ${CONTEXT_ID}  ${TARGET}  Minimal OWASP Policy
+    ${scan_id}=  zap start ascan  ${CONTEXT_ID}  ${TARGET}  ${SCANPOLICY}
     set suite variable  ${SCAN_ID}  ${scan_id}
     zap scan status  ${scan_id}
     zap write to json file  ${BASE_URL}
+    zap write to tiny  ${BASE_URL}  ${TINYPATH}  ${APPNAME}
 
 
 ZAP Die

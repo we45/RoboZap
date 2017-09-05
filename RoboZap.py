@@ -6,6 +6,7 @@ from robot.api import logger
 import base64
 import uuid
 import json
+from tinydb import TinyDB
 
 import sys
 
@@ -154,6 +155,47 @@ class RoboZap(object):
             json_file.write(json.dumps(all_vuls))
 
         return filename
+
+    def zap_write_to_tiny(self, base_url, db_name, app_name):
+        """
+        Fetches all the results from zap.core.alerts() and writes to json file.
+        Examples:
+        | zap write to json  | scan_id |
+        """
+        db = TinyDB(os.environ.get('VUL_DB', db_name))
+        core = self.zap.core
+        scan = str(uuid.uuid4())
+        for i, na in enumerate(core.alerts(baseurl=base_url)):
+            vul = {}
+            vul['app'] = app_name
+            vul['scan'] = scan
+            vul['name'] = na.get('alert', 'Unknown Vulnerability')
+            vul['confidence'] = na.get('confidence', '')
+            if na.get('risk') == 'High':
+                vul['severity'] = 3
+            elif na.get('risk') == 'Medium':
+                vul['severity'] = 2
+            elif na.get('risk') == 'Low':
+                vul['severity'] = 1
+            else:
+                vul['severity'] = 0
+
+            vul['cwe'] = na.get('cweid', 0)
+            vul['uri'] = na.get('url', '')
+            vul['param'] = na.get('param', '')
+            vul['attack'] = na.get('attack', '')
+            vul['evidence'] = na.get('evidence', '')
+            message_id = na.get('messageId', '')
+            message = core.message(message_id)
+            if isinstance(message, dict):
+                request = base64.b64encode("{0}{1}".format(message['requestHeader'], message['requestBody']))
+                response = base64.b64encode("{0}{1}".format(message['responseHeader'], message['responseBody']))
+                vul['request'] = request
+                vul['response'] = response
+                vul['rtt'] = int(message['rtt'])
+
+            if vul:
+                db.insert(vul)
 
 
 
