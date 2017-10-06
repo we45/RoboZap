@@ -1,16 +1,16 @@
 *** Settings ***
-Library  /Users/abhaybhargav/Documents/Code/Python/RoboZap/RoboZap.py  http://127.0.0.1:8090/
+Library  RoboZap  http://127.0.0.1:8090/
 Library  Collections
 Library  Selenium2Library
 
 *** Variables ***
 ${ZAP_PATH}  /Applications/ZAP_2.6.0.app/Contents/Java/
-${TARGET}  http://104.236.85.150/
-${CONTEXT}  CTF2
-${BASE_URL}  http://104.236.85.150/
-${LOGIN_URL}  http://104.236.85.150/login/
+${TARGET}  http://demo.testfire.net/
+${CONTEXT}  Testfire
+${BASE_URL}  http://demo.testfire.net/
+${LOGIN_URL}  http://demo.testfire.net/bank/login.aspx
 ${SCANPOLICY}  Minimal OWASP Policy
-${APPNAME}  weCare
+${APPNAME}  Testfire
 ${TINYPATH}  /Users/abhaybhargav/Documents/vul_db.json
 
 
@@ -20,35 +20,28 @@ ZAP Init
     start headless zap  ${ZAP_PATH}
     zap open url  ${TARGET}
 
-Open Healthcare App
+Open App
     [Tags]  phantomjs
     ${service args}=    Create List    --proxy=127.0.0.1:8090
     Create WebDriver  PhantomJS  service_args=${service args}
     go to  ${LOGIN_URL}
 
-Login to Healthcare App
+Login to Testfire App
     [Tags]  login
-    input text  email_id  betty.ross@we45.com
-    input password  password  secdevops
-    click button  id=submit
+    input text  uid  admin
+    input password  passw  admin
+    click button  name=btnSubmit
     set browser implicit wait  10
-    location should be  ${BASE_URL}dashboard/
-
-Visit Random Pages
-    [Tags]  visit
-    go to  ${BASE_URL}tests/
-    input text  search  something
-    click button  name=look
-    go to  ${BASE_URL}secure_tests/
+    location should be  ${BASE_URL}bank/main.aspx
 
 ZAP Contextualize
     [Tags]  zap_context
     ${contextid}=  zap define context  ${CONTEXT}  ${TARGET}
     set suite variable  ${CONTEXT_ID}  ${contextid}
 
-#ZAP Crawl
-#    ${spider_id}=  zap start spider  ${CONTEXT}  ${TARGET}
-#    zap spider status  ${spider_id}
+ZAP Crawl
+    ${spider_id}=  zap start spider  ${CONTEXT}  ${TARGET}
+    zap spider status  ${spider_id}
 
 ZAP Active Scan
     [Tags]  zap_scan

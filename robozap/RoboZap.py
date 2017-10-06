@@ -19,10 +19,15 @@ class RoboZap(object):
     def __init__(self, proxy):
         '''
         ZAP Library can be imported with one argument
+
         Arguments:
             - ``proxy``: Proxy is required to initialize the ZAP Proxy at that location
+
+
         Examples:
+
         | = Keyword Definition =  | = Description =  |
+
         | Library `|` RoboZap  | proxy|
         '''
         self.zap = ZAP(proxies={'http': proxy, 'https':proxy})
@@ -31,11 +36,14 @@ class RoboZap(object):
     def start_headless_zap(self, path):
         """
         Start OWASP ZAP without a GUI
+
         Examples:
+
         | Start Headless ZAP  | path |
+
         """
         try:
-            cmd = path + 'zap.sh -port 8090'
+            cmd = path + 'zap.sh -daemon -config api.disablekey=true -port 8090'
             print cmd
             subprocess.Popen(cmd.split(' '), stdout = open(os.devnull, 'w'))
             time.sleep(10)
@@ -45,8 +53,11 @@ class RoboZap(object):
     def zap_open_url(self, url):
         """
         Invoke URLOpen with ZAP
+
         Examples:
+
         | zap open url  | target |
+
         """
         self.zap.urlopen(url)
         time.sleep(4)
@@ -54,8 +65,11 @@ class RoboZap(object):
     def zap_define_context(self, contextname, url):
         """
         Add Target to a context and use the context to perform all scanning/spidering operations
+
         Examples:
+
         | zap define context  | contextname  | target |
+
         """
         regex = "{0}.*".format(url)
         context_id = self.zap.context.new_context(contextname=contextname)
@@ -67,8 +81,11 @@ class RoboZap(object):
     def zap_start_spider(self, target, url):
         """
         Start ZAP Spider with ZAP's inbuilt spider mode
+
         Examples:
+
         | zap start spider  | target  | url |
+
         """
         try:
 
@@ -93,8 +110,11 @@ class RoboZap(object):
     def zap_start_ascan(self, context, url, policy = "Default Policy"):
         """
         Initiates ZAP Active Scan on the target url and context
+
         Examples:
+
         | zap start ascan  | context  | url |
+
         """
         try:
             scan_id = self.zap.ascan.scan(contextid=context, url=url, scanpolicyname=policy)
@@ -106,8 +126,11 @@ class RoboZap(object):
     def zap_scan_status(self, scan_id):
         """
         Fetches the status for the spider id provided by the user
+
         Examples:
+
         | zap scan status  | scan_id |
+
         """
         while int(self.zap.ascan.status(scan_id)) < 100:
             logger.info('Scan running at {0}%'.format(int(self.zap.ascan.status(scan_id))))
@@ -116,9 +139,13 @@ class RoboZap(object):
 
     def zap_write_to_json_file(self, base_url):
         """
+
         Fetches all the results from zap.core.alerts() and writes to json file.
+
         Examples:
+
         | zap write to json  | scan_id |
+
         """
         core = self.zap.core
         all_vuls = []
@@ -159,12 +186,16 @@ class RoboZap(object):
     def zap_write_to_tiny(self, base_url, db_name, app_name):
         """
         Fetches all the results from zap.core.alerts() and writes to json file.
+
         Examples:
+
         | zap write to json  | scan_id |
+
         """
         db = TinyDB(os.environ.get('VUL_DB', db_name))
         core = self.zap.core
         scan = str(uuid.uuid4())
+        logger.info('Scan ID generated: {0}'.format(scan))
         for i, na in enumerate(core.alerts(baseurl=base_url)):
             vul = {}
             vul['app'] = app_name
