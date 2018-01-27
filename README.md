@@ -114,7 +114,7 @@ Examples:
 
 Zap Write To Json File
 ----------------------
-Arguments:  [base_url]
+Arguments:  [scan_id]
 
 Fetches all the results from zap.core.alerts() and writes to json file.
 
@@ -125,7 +125,7 @@ Examples:
 
 Zap Generate Report  (Export Report Plugin)
 ----------------------
-Arguments:  [base_url]
+Arguments:  [file_path, report_format, report_title, report_author]
 
 Uses the `Export Report` from ZAP to generate reports in multiple formats.
 - file_path: needs to be an absolute path and include the file name with extension. 
