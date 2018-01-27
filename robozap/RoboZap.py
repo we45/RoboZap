@@ -238,7 +238,7 @@ class RoboZap(object):
         """
         This functionality works on ZAP 2.7.0 only. It leverages the Export Report Library to generate a report.
         Currently ExportReport doesnt have an API endpoint in python. We will be using the default ZAP REST API for this
-        
+
         :param export_file: location to which the export needs to happen. Absolute path with the export file name and extension
         :param export_format: file extension of the exported file. Can be XML, JSON, HTML, PDF, DOC
         :param report_title: Title of the exported report
