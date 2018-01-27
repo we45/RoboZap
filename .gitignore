@@ -6,3 +6,8 @@ report.html
 log.html
 AZapTest.robot
 build/lib
+RoboJuice.robot
+*.png
+TestRobot.robot
+wecare.json
+zap_scan.xml
