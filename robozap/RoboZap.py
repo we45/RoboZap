@@ -254,7 +254,7 @@ class RoboZap(object):
         report_time = datetime.now().strftime("%I:%M%p on %B %d, %Y")
         source_info = '{0};{1};ZAP Team;{2};{3};v1;v1;{4}'.format(report_title, report_author, report_time, report_time, report_title)
         alert_severity = 't;t;t;t'  # High;Medium;Low;Info
-        alert_details = 't;t;t;t;t;t;f;f;f;f'  # CWEID;#WASCID;Description;Other Info;Solution;Reference;Request Header;Response Header;Request Body;Response Body
+        alert_details = 't;t;t;t;t;t;t;t;t;t'  # CWEID;#WASCID;Description;Other Info;Solution;Reference;Request Header;Response Header;Request Body;Response Body
         data = {'absolutePath': export_path, 'fileExtension': extension, 'sourceDetails': source_info,
                 'alertSeverity': alert_severity, 'alertDetails': alert_details}
 
