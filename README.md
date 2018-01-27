@@ -16,7 +16,8 @@ Arguments:  [proxy]
 ZAP Library can be imported with one argument
 
 Arguments:
-    - ``proxy``: Proxy is required to initialize the ZAP Proxy at that
+    - ``proxy``: Proxy is required to initialize the ZAP Proxy at that location. Must include PortSpec
+    - ``port``: Port is required to be set as a global/suite variable for the rest of the suite to access
 location
 
 
@@ -24,7 +25,7 @@ Examples:
 
 | = Keyword Definition =  | = Description =  |
 
-`| Library `|` RoboZap  | proxy|`
+`| Library `|` RoboZap  | proxy| port | `
 
 Start Headless Zap
 ------------------
@@ -34,7 +35,17 @@ Start OWASP ZAP without a GUI
 
 Examples:
 
-`| Start Headless ZAP  | path |`
+`| start headless zap  | path |`
+
+Start GUI Zap
+------------------
+Arguments:  [path]
+
+Start OWASP ZAP without a GUI
+
+Examples:
+
+`| start gui zap  | path |`
 
 Zap Define Context
 ------------------
@@ -111,9 +122,27 @@ Examples:
 
 `| zap write to json  | scan_id |`
 
+
+Zap Generate Report  (Export Report Plugin)
+----------------------
+Arguments:  [base_url]
+
+Uses the `Export Report` from ZAP to generate reports in multiple formats.
+- file_path: needs to be an absolute path and include the file name with extension. 
+- format: can be `json|xml|xhtml|pdf|doc`
+- report title: Any title you deem fit for the exported report
+- report auhor: Any name you want for the author of the report
+
+Examples:
+
+`| zap export report | file_path | format | report title | report author`
+
+
 Zap Write To Tiny
 -----------------
 Arguments:  [base_url, db_name, app_name]
+
+** This will be deprecated soon. TinyDB and existing ways of doing this is becoming a pain **
 
 Fetches all the results from zap.core.alerts() and writes to json file.
 
