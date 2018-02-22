@@ -206,30 +206,31 @@ class RoboZap(object):
         return filename
 
 
-    def zap_write_to_orchy(self, token, hook_uri):
+    def zap_write_to_orchy(self, report_file, token, hook_uri):
         """
                 Generates an XML Report and writes said report to orchestron over a webhook.
 
                 Mandatory Fields:
+                - Report_file: Absolute Path of Report File - JSON or XML
                 - Token: Webhook Token
                 - hook_uri: the unique URI to post the XML Report to
 
                 Examples:
 
-                | zap write to orchy  | token | hook_uri
+                | zap write to orchy  | report_file_path | token | hook_uri
 
         """
-        xml_report = self.zap.core.xmlreport()
-        with open('zap_scan.xml','w') as zaprep:
-            zaprep.write(xml_report)
+        # xml_report = self.zap.core.xmlreport()
+        # with open('zap_scan.xml','w') as zaprep:
+        #     zaprep.write(xml_report)
         try:
-            files = {'file': open('zap_scan.xml','rb')}
+            files = {'file': open(report_file,'rb')}
             auth = {'Authorization': 'Token {0}'.format(token)}
             r = requests.post(hook_uri, headers = auth, files = files)
             if r.status_code == 200:
                 return "Successfully posted to Orchestron"
             else:
-                return "Failed writing to Orchy Console"
+                raise Exception("Unable to post successfully")
         except Exception as e:
             print(e)
 
