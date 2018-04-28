@@ -6,8 +6,13 @@ Please refer to the sample Zap Test in ``TestfireZap.robot`` that uses the RoboZ
 
 Installing
 ----------
+
+*Approach 1*
 - Please install all requirements in requirements.txt with `pip install requirements.txt`
 - Install RoboZap libraries into the virtualenv with `python setup.py install`
+
+*Approach 2*
+- Install RoboZap with `pip install RoboZap`
 
 Importing
 ---------
