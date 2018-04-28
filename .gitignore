@@ -13,3 +13,5 @@ wecare.json
 zap_scan.xml
 flask_api.json
 FlaskApiTestBot.robot
+dist/
+robozap/RoboZap.egg-info/

@@ -19,7 +19,7 @@ setup(
     version='1.1',
     packages=[''],
     package_dir={'': 'robozap'},
-    url='www.we45.com',
+    url='http://www.we45.com/',
     license='MIT License',
     author='Abhay Bhargav',
     install_requires = [
@@ -27,5 +27,7 @@ setup(
     'requests==2.18.4',
     'robotframework==3.0.4',
     ],
-    description='Robot Framework Library for OWASP ZAP 2.7'
+    description='Robot Framework Library for OWASP ZAP 2.7',
+    long_description = long_description,
+    long_description_content_type='text/markdown'
 )
