@@ -143,14 +143,4 @@ Examples:
 `| zap export report | file_path | format | report title | report author`
 
 
-Zap Write To Tiny
------------------
-Arguments:  [base_url, db_name, app_name]
-
-** This will be deprecated soon. TinyDB and existing ways of doing this is becoming a pain **
-
-Fetches all the results from zap.core.alerts() and writes to json file.
-
-Examples:
-
-`| zap write to json  | scan_id |`
+Keyword Documentation for this Library is [here](https://s3.amazonaws.com/threat-playbook/robozap_keywords.html)
