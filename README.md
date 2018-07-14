@@ -2,17 +2,9 @@ RoboZap
 =======
 Documentation for test library ``RoboZap``.
 
-Please refer to the sample Zap Test in ``TestfireZap.robot`` that uses the RoboZap library and Selenium Library with it to perform "parameterized scanning"/authenticated scanning of the app. 
-
 Installing
 ----------
-
-*Approach 1*
-- Please install all requirements in requirements.txt with `pip install requirements.txt`
-- Install RoboZap libraries into the virtualenv with `python setup.py install`
-
-*Approach 2*
-- Install RoboZap with `pip install RoboZap`
+- Install RoboZap libraries into the virtualenv with `pip install RoboZap`
 
 Importing
 ---------
@@ -31,6 +23,10 @@ Examples:
 | = Keyword Definition =  | = Description =  |
 
 `| Library `|` RoboZap  | proxy| port | `
+
+
+Major Keywords
+================
 
 Start Headless Zap
 ------------------
@@ -133,7 +129,7 @@ Zap Generate Report  (Export Report Plugin)
 Arguments:  [file_path, report_format, report_title, report_author]
 
 Uses the `Export Report` from ZAP to generate reports in multiple formats.
-- file_path: needs to be an absolute path and include the file name with extension. 
+- file_path: needs to be an absolute path and include the file name with extension.
 - format: can be `json|xml|xhtml|pdf|doc`
 - report title: Any title you deem fit for the exported report
 - report auhor: Any name you want for the author of the report
@@ -141,6 +137,3 @@ Uses the `Export Report` from ZAP to generate reports in multiple formats.
 Examples:
 
 `| zap export report | file_path | format | report title | report author`
-
-
-Keyword Documentation for this Library is [here](https://s3.amazonaws.com/threat-playbook/robozap_keywords.html)

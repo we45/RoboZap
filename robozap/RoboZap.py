@@ -47,11 +47,11 @@ class RoboZap(object):
         """
         try:
             cmd = path + 'zap.sh -daemon -config api.disablekey=true -port {0}'.format(self.port)
-            print cmd
+            print(cmd)
             subprocess.Popen(cmd.split(' '), stdout = open(os.devnull, 'w'))
             time.sleep(10)
         except IOError as e:
-            print 'ZAP Path is not configured correctly'
+            print('ZAP Path is not configured correctly')
 
 
     def start_gui_zap(self, path):
@@ -65,11 +65,11 @@ class RoboZap(object):
         """
         try:
             cmd = path + 'zap.sh -config api.disablekey=true -port {0}'.format(self.port)
-            print cmd
+            print(cmd)
             subprocess.Popen(cmd.split(' '), stdout=open(os.devnull, 'w'))
             time.sleep(10)
         except IOError as e:
-            print 'ZAP Path is not configured correctly'
+            print('ZAP Path is not configured correctly')
 
     def zap_open_url(self, url):
         """
@@ -114,7 +114,7 @@ class RoboZap(object):
             time.sleep(2)
             return spider_id
         except Exception as e:
-            print str(e.message)
+            print(str(e.message))
         #return spider #this is the spider id
     #
     def zap_spider_status(self, spider_id):
@@ -142,7 +142,7 @@ class RoboZap(object):
             time.sleep(2)
             return scan_id
         except Exception as e:
-            print str(e.message)
+            print(str(e.message))
 
     def zap_scan_status(self, scan_id):
         """
@@ -264,6 +264,27 @@ class RoboZap(object):
             pass
         else:
             raise Exception("Unable to generate report")
+
+
+    def zap_load_script(self, script_name, script_type, script_engine, script_file, desc = "Generic Description of a ZAP Script"):
+        '''
+        
+        :param script_name:
+        :param script_type:
+        :param script_engine:
+        :param script_file:
+        :param desc:
+        :return:
+        '''
+        zap_script_status = self.zap.script.load(scriptname=script_name, scripttype=script_type, scriptengine=script_engine, filename=script_file, scriptdescription=desc)
+        logger.info(zap_script_status)
+
+    def zap_run_standalone_script(self, script_name):
+        zap_script_run_status = self.zap.script.run_stand_alone_script(script_name)
+        logger.info(zap_script_run_status)
+
+
+
 
 
 
