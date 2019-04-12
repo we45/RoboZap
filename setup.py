@@ -9,7 +9,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='RoboZap',
-    version='1.2',
+    version='1.2.6',
     packages=[''],
     package_dir={'': 'robozap'},
     url='https://www.github.com/we45/RoboZap',
@@ -20,7 +20,8 @@ setup(
     install_requires=[
         'requests==2.18.4',
         'python-owasp-zap-v2.4==0.0.14',
-        'robotframework==3.0.4'
+        'robotframework==3.0.4',
+        'boto3'
     ],
     long_description = long_description,
     long_description_content_type='text/markdown'
