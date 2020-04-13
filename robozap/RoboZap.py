@@ -10,17 +10,12 @@ import requests
 from datetime import datetime
 import boto3
 
-import sys
-
-reload(sys)
-sys.setdefaultencoding('UTF8')
-
 
 class RoboZap(object):
-    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
+    ROBOT_LIBRARY_SCOPE = "GLOBAL"
 
     def __init__(self, proxy, port):
-        '''
+        """
         ZAP Library can be imported with one argument
 
         Arguments:
@@ -33,8 +28,8 @@ class RoboZap(object):
         | = Keyword Definition =  | = Description =  |
 
         | Library `|` RoboZap  | proxy | port |
-        '''
-        self.zap = ZAP(proxies={'http': proxy, 'https': proxy})
+        """
+        self.zap = ZAP(proxies={"http": proxy, "https": proxy})
         self.port = port
 
     def start_headless_zap(self, path):
@@ -47,12 +42,14 @@ class RoboZap(object):
 
         """
         try:
-            cmd = path + 'zap.sh -daemon -config api.disablekey=true -port {0}'.format(self.port)
+            cmd = path + "zap.sh -daemon -config api.disablekey=true -port {0}".format(
+                self.port
+            )
             print(cmd)
-            subprocess.Popen(cmd.split(' '), stdout=open(os.devnull, 'w'))
+            subprocess.Popen(cmd.split(" "), stdout=open(os.devnull, "w"))
             time.sleep(10)
-        except IOError as e:
-            print('ZAP Path is not configured correctly')
+        except IOError:
+            print("ZAP Path is not configured correctly")
 
     def start_gui_zap(self, path):
         """
@@ -64,12 +61,14 @@ class RoboZap(object):
 
         """
         try:
-            cmd = path + 'zap.sh -config api.disablekey=true -port {0}'.format(self.port)
+            cmd = path + "zap.sh -config api.disablekey=true -port {0}".format(
+                self.port
+            )
             print(cmd)
-            subprocess.Popen(cmd.split(' '), stdout=open(os.devnull, 'w'))
+            subprocess.Popen(cmd.split(" "), stdout=open(os.devnull, "w"))
             time.sleep(10)
-        except IOError as e:
-            print('ZAP Path is not configured correctly')
+        except IOError:
+            print("ZAP Path is not configured correctly")
 
     def zap_open_url(self, url):
         """
@@ -123,7 +122,9 @@ class RoboZap(object):
         | zap spider status  | spider_id |
         """
         while int(self.zap.spider.status(spider_id)) < 100:
-            logger.info('Spider running at {0}%'.format(int(self.zap.spider.status(spider_id))))
+            logger.info(
+                "Spider running at {0}%".format(int(self.zap.spider.status(spider_id)))
+            )
             time.sleep(10)
 
     def zap_start_ascan(self, context, url, policy="Default Policy"):
@@ -136,7 +137,9 @@ class RoboZap(object):
 
         """
         try:
-            scan_id = self.zap.ascan.scan(contextid=context, url=url, scanpolicyname=policy)
+            scan_id = self.zap.ascan.scan(
+                contextid=context, url=url, scanpolicyname=policy
+            )
             time.sleep(2)
             return scan_id
         except Exception as e:
@@ -152,7 +155,9 @@ class RoboZap(object):
 
         """
         while int(self.zap.ascan.status(scan_id)) < 100:
-            logger.info('Scan running at {0}%'.format(int(self.zap.ascan.status(scan_id))))
+            logger.info(
+                "Scan running at {0}%".format(int(self.zap.ascan.status(scan_id)))
+            )
             time.sleep(10)
 
     def zap_write_to_json_file(self, base_url):
@@ -169,34 +174,38 @@ class RoboZap(object):
         all_vuls = []
         for i, na in enumerate(core.alerts(baseurl=base_url)):
             vul = {}
-            vul['name'] = na['alert']
-            vul['confidence'] = na.get('confidence', '')
-            if na.get('risk') == 'High':
-                vul['severity'] = 3
-            elif na.get('risk') == 'Medium':
-                vul['severity'] = 2
-            elif na.get('risk') == 'Low':
-                vul['severity'] = 1
+            vul["name"] = na["alert"]
+            vul["confidence"] = na.get("confidence", "")
+            if na.get("risk") == "High":
+                vul["severity"] = 3
+            elif na.get("risk") == "Medium":
+                vul["severity"] = 2
+            elif na.get("risk") == "Low":
+                vul["severity"] = 1
             else:
-                vul['severity'] = 0
+                vul["severity"] = 0
 
-            vul['cwe'] = na.get('cweid', 0)
-            vul['uri'] = na.get('url', '')
-            vul['param'] = na.get('param', '')
-            vul['attack'] = na.get('attack', '')
-            vul['evidence'] = na.get('evidence', '')
-            message_id = na.get('messageId', '')
+            vul["cwe"] = na.get("cweid", 0)
+            vul["uri"] = na.get("url", "")
+            vul["param"] = na.get("param", "")
+            vul["attack"] = na.get("attack", "")
+            vul["evidence"] = na.get("evidence", "")
+            message_id = na.get("messageId", "")
             message = core.message(message_id)
             if isinstance(message, dict):
-                request = base64.b64encode("{0}{1}".format(message['requestHeader'], message['requestBody']))
-                response = base64.b64encode("{0}{1}".format(message['responseHeader'], message['responseBody']))
-                vul['request'] = request
-                vul['response'] = response
-                vul['rtt'] = int(message['rtt'])
+                request = base64.b64encode(
+                    "{0}{1}".format(message["requestHeader"], message["requestBody"])
+                )
+                response = base64.b64encode(
+                    "{0}{1}".format(message["responseHeader"], message["responseBody"])
+                )
+                vul["request"] = request
+                vul["response"] = response
+                vul["rtt"] = int(message["rtt"])
             all_vuls.append(vul)
 
         filename = "{0}.json".format(str(uuid.uuid4()))
-        with open(filename, 'wb') as json_file:
+        with open(filename, "wb") as json_file:
             json_file.write(json.dumps(all_vuls))
 
         return filename
@@ -219,8 +228,8 @@ class RoboZap(object):
         # with open('zap_scan.xml','w') as zaprep:
         #     zaprep.write(xml_report)
         try:
-            files = {'file': open(report_file, 'rb')}
-            auth = {'Secret-Key': secret, 'Access-Key': access}
+            files = {"file": open(report_file, "rb")}
+            auth = {"Secret-Key": secret, "Access-Key": access}
             r = requests.post(hook_uri, headers=auth, files=files)
             if r.status_code == 200:
                 return "Successfully posted to Orchestron"
@@ -229,7 +238,9 @@ class RoboZap(object):
         except Exception as e:
             print(e)
 
-    def zap_export_report(self, export_file, export_format, report_title, report_author):
+    def zap_export_report(
+        self, export_file, export_format, report_title, report_author
+    ):
         """
         This functionality works on ZAP 2.7.0 only. It leverages the Export Report Library to generate a report.
         Currently ExportReport doesnt have an API endpoint in python. We will be using the default ZAP REST API for this
@@ -244,16 +255,24 @@ class RoboZap(object):
 
         """
 
-        url = 'http://localhost:{0}/JSON/exportreport/action/generate/'.format(self.port)
+        url = "http://localhost:{0}/JSON/exportreport/action/generate/".format(
+            self.port
+        )
         export_path = export_file
         extension = export_format
         report_time = datetime.now().strftime("%I:%M%p on %B %d, %Y")
-        source_info = '{0};{1};ZAP Team;{2};{3};v1;v1;{4}'.format(report_title, report_author, report_time, report_time,
-                                                                  report_title)
-        alert_severity = 't;t;t;t'  # High;Medium;Low;Info
-        alert_details = 't;t;t;t;t;t;t;t;t;t'  # CWEID;#WASCID;Description;Other Info;Solution;Reference;Request Header;Response Header;Request Body;Response Body
-        data = {'absolutePath': export_path, 'fileExtension': extension, 'sourceDetails': source_info,
-                'alertSeverity': alert_severity, 'alertDetails': alert_details}
+        source_info = "{0};{1};ZAP Team;{2};{3};v1;v1;{4}".format(
+            report_title, report_author, report_time, report_time, report_title
+        )
+        alert_severity = "t;t;t;t"  # High;Medium;Low;Info
+        alert_details = "t;t;t;t;t;t;t;t;t;t"  # CWEID;#WASCID;Description;Other Info;Solution;Reference;Request Header;Response Header;Request Body;Response Body
+        data = {
+            "absolutePath": export_path,
+            "fileExtension": extension,
+            "sourceDetails": source_info,
+            "alertSeverity": alert_severity,
+            "alertDetails": alert_details,
+        }
 
         r = requests.post(url, data=data)
         if r.status_code == 200:
@@ -262,31 +281,41 @@ class RoboZap(object):
             raise Exception("Unable to generate report")
 
     def zap_write_to_s3_bucket(self, filename, bucket_name):
-        s3 = boto3.client('s3')
+        s3 = boto3.client("s3")
         outfile_name = "ZAP-RESULT-{}.json".format(str(uuid.uuid4()))
         s3.upload_file(filename, bucket_name, outfile_name)
         logger.warn("Filename uploaded to S3 is: {}".format(outfile_name))
 
-    def retrieve_secret_from_ssm(self, secret, region = 'us-west-2', decrypt=True):
-        db = boto3.client('ssm', region_name = region)
-        param = db.get_parameter(Name = secret, WithDecryption = decrypt)['Parameter']['Value']
+    def retrieve_secret_from_ssm(self, secret, region="us-west-2", decrypt=True):
+        db = boto3.client("ssm", region_name=region)
+        param = db.get_parameter(Name=secret, WithDecryption=decrypt)["Parameter"][
+            "Value"
+        ]
         return param
 
-
-    def zap_load_script(self, script_name, script_type, script_engine, script_file,
-                        desc="Generic Description of a ZAP Script"):
-        '''
-        
+    def zap_load_script(
+        self,
+        script_name,
+        script_type,
+        script_engine,
+        script_file,
+        desc="Generic Description of a ZAP Script",
+    ):
+        """        
         :param script_name:
         :param script_type:
         :param script_engine:
         :param script_file:
         :param desc:
         :return:
-        '''
-        zap_script_status = self.zap.script.load(scriptname=script_name, scripttype=script_type,
-                                                 scriptengine=script_engine, filename=script_file,
-                                                 scriptdescription=desc)
+        """
+        zap_script_status = self.zap.script.load(
+            scriptname=script_name,
+            scripttype=script_type,
+            scriptengine=script_engine,
+            filename=script_file,
+            scriptdescription=desc,
+        )
         logger.info(zap_script_status)
 
     def zap_run_standalone_script(self, script_name):

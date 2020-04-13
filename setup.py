@@ -9,7 +9,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='RoboZap',
-    version='1.2.6',
+    version='1.3.0',
     packages=[''],
     package_dir={'': 'robozap'},
     url='https://www.github.com/we45/RoboZap',

@@ -15,3 +15,5 @@ flask_api.json
 FlaskApiTestBot.robot
 dist/
 robozap/RoboZap.egg-info/
+venv/*
+.vscode/*
