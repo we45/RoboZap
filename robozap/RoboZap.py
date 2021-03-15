@@ -10,6 +10,13 @@ import requests
 from datetime import datetime
 import boto3
 
+def write_report(file_path, report):
+    with open(file_path, mode='wb') as f:
+        if not isinstance(report, binary_type):
+            report = report.encode('utf-8')
+
+        f.write(report)
+
 
 class RoboZap(object):
     ROBOT_LIBRARY_SCOPE = "GLOBAL"
@@ -238,6 +245,38 @@ class RoboZap(object):
         except Exception as e:
             print(e)
 
+    def zap_write_html_report(
+        self, export_dir
+    ):
+        """
+        use the build in ZAP html Reporter
+        """
+        write_report( os.path.join(export_dir, report_html), self.zap.core.htmlreport())
+        
+    def zap_write_json_report(
+        self, export_dir
+    ):
+        """
+        use the build in ZAP json Reporter
+        """
+        write_report( os.path.join(export_dir, report_json), self.zap.core.jsonreport())
+
+    def zap_write_md_report(
+        self, export_dir
+    ):
+        """
+        use the build in ZAP markdown Reporter
+        """
+        write_report( os.path.join(export_dir, report_md), self.zap.core.mdreport())
+    
+    def zap_write_xml_report(
+        self, export_dir
+    ):
+        """
+        use the build in ZAP markdown Reporter
+        """
+        write_report( os.path.join(export_dir, report_xml), self.zap.core.xmlreport())    
+    
     def zap_export_report(
         self, export_file, export_format, report_title, report_author
     ):
