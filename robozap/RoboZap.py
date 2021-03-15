@@ -246,36 +246,36 @@ class RoboZap(object):
             print(e)
 
     def zap_write_html_report(
-        self, export_dir
+        self, export_dir, report_name
     ):
         """
         use the build in ZAP html Reporter
         """
-        write_report( os.path.join(export_dir, report_html), self.zap.core.htmlreport())
+        write_report( os.path.join(export_dir, report_name), self.zap.core.htmlreport())
         
     def zap_write_json_report(
-        self, export_dir
+        self, export_dir, report_name
     ):
         """
         use the build in ZAP json Reporter
         """
-        write_report( os.path.join(export_dir, report_json), self.zap.core.jsonreport())
+        write_report( os.path.join(export_dir, report_name), self.zap.core.jsonreport())
 
     def zap_write_md_report(
-        self, export_dir
+        self, export_dir, report_name
     ):
         """
         use the build in ZAP markdown Reporter
         """
-        write_report( os.path.join(export_dir, report_md), self.zap.core.mdreport())
+        write_report( os.path.join(export_dir, report_name), self.zap.core.mdreport())
     
     def zap_write_xml_report(
-        self, export_dir
+        self, export_dir, report_name
     ):
         """
         use the build in ZAP markdown Reporter
         """
-        write_report( os.path.join(export_dir, report_xml), self.zap.core.xmlreport())    
+        write_report( os.path.join(export_dir, report_name), self.zap.core.xmlreport())    
     
     def zap_export_report(
         self, export_file, export_format, report_title, report_author
