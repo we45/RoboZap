@@ -9,6 +9,7 @@ import json
 import requests
 from datetime import datetime
 import boto3
+from six import binary_type
 
 def write_report(file_path, report):
     with open(file_path, mode='wb') as f:
