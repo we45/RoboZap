@@ -106,18 +106,133 @@ class RoboZap(object):
         time.sleep(5)
         return context_id
 
-    def zap_start_spider(self, target, url):
+
+    def zap_exclude_from_context(self, contextname, regex):
+        """
+        Provide a way to exclude urls from spider and scanning using a regex.
+          this is just a passthru.
+        
+        Examples:
+        
+        | zap exclude from context  |  contextname  |  regex  |
+        
+        """
+        self.zap.context.exclude_from_context(contextname, regex)        
+        
+    def zap_get_context_info(self, contextname):
+        """
+        Get information about the context
+        """
+        
+        return self.zap.context.context(contextname)
+
+    def zap_add_session(self, target, sessionName):
+        """
+        Add a session so we can modify it later
+
+        Examples:
+        
+        | zap add session | target  | sessionName  |
+        
+        """
+        session_id = self.zap.httpsessions.create_empty_session(target, sessionName)
+        time.sleep(2)
+        return session_id
+
+    def zap_set_active_session(self, target, sessionName):
+        """
+        Set the active session for a site
+        
+        Examples:
+        
+        | zap set active session | target  | sessionName  |
+                
+        """
+        
+        return self.zap.httpsessions.set_active_session(target, sessionName)
+        
+    def zap_get_active_session(self, target):
+        """
+        Get the active session for a site
+        """
+        
+        return self.zap.httpsessions.active_session(target)        
+        
+    def zap_get_sessions(self, target):
+        """
+        Get all the sessions for a site
+        """
+        
+        return self.zap.httpsessions.sessions(target)
+
+    def zap_set_default_session_token(self, cookiename):
+        """
+        Set the default session tokens that will be used to manage sessions.
+        
+        Examples:
+        
+        | zap set default session token |  cookiename  |
+                
+        """
+
+        self.zap.httpsessions.add_default_session_token(cookiename, True)
+        
+    def zap_set_session_token(self, target, cookiename):
+        """
+        Set the default session tokens that will be used to manage sessions.
+        
+        Examples:
+        
+        | zap set session token |  target  |  cookiename  |
+                
+        """
+
+        self.zap.httpsessions.add_session_token(target, cookiename, True)        
+        
+    def zap_set_session_token_contains(self, target, cookiename, cookiedict):
+        """
+        Set a default session tokens based on matching a token using a regex
+        
+        Examples:
+        
+        | zap set session token contains |  target  |  cookiename  |  cookiedict  |
+                
+        """
+        for key, value in cookiedict.items():
+            if cookiename in key:
+                self.zap.httpsessions.add_session_token(target, key, True)        
+        
+    def zap_add_anticsrf_token(self, tokenname):
+        """
+        Set the anticsrf token name
+        
+        Examples:
+        
+        | zap add anticsrf token |  tokenname  |
+  
+        """
+        
+        self.zap.acsrf.add_option_token(tokenname)
+        
+    def zap_get_session_tokens(self, target):
+        """
+        Get the session tokens for the default session for a site
+        """
+        
+        return self.zap.httpsessions.session_tokens(target)
+        
+    def zap_start_spider(self, contextname, url):
         """
         Start ZAP Spider with ZAP's inbuilt spider mode
 
         Examples:
 
-        | zap start spider  | target  | url |
+        | zap start spider  | contextname  | url |
 
         """
         try:
 
-            spider_id = self.zap.spider.scan(url=url, contextname=target)
+            spider_id = self.zap.spider.scan(url=url, contextname=contextname)
             time.sleep(2)
             return spider_id
         except Exception as e:
@@ -167,7 +282,18 @@ class RoboZap(object):
                 "Scan running at {0}%".format(int(self.zap.ascan.status(scan_id)))
             )
             time.sleep(10)
-
+            
+    def zap_get_scanned_urls(self, contextname):
+        """
+        Gets the URLs that were scanned for the target
+        
+        Examples:
+        
+        | zap get scanned urls  | base_url  |
+        
+        """
+        return self.zap.context.urls(contextname)
+        
     def zap_write_to_json_file(self, base_url):
         """
 
