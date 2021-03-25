@@ -2,6 +2,7 @@ import os
 from zapv2 import ZAPv2 as ZAP
 import time
 import subprocess
+import tempfile
 from robot.api import logger
 import base64
 import uuid
@@ -39,25 +40,39 @@ class RoboZap(object):
         """
         self.zap = ZAP(proxies={"http": proxy, "https": proxy})
         self.port = port
+        
+        temp_name = next(tempfile._get_candidate_names())
+        tmp_dir = tempfile._get_default_tempdir()
+        self.session = os.path.join(tmp_dir, temp_name)
+        self.zap_exe = ""
 
-    def start_headless_zap(self, path):
+    def start_headless_zap(self, path, extra_zap_params=[]):
         """
         Start OWASP ZAP without a GUI
 
         Examples:
 
-        | start gui zap  | path | port |
+        | start headless zap  |  path  |  extra_zap_params **optional**  |
 
         """
+        self.zap_exe = os.path.join(path, "zap.sh")
+        params = [
+            self.zap_exe, 
+            '-daemon',
+            '-newsession', str(self.session),
+            '-port', str(self.port),
+            '-config', 'database.recoverylog=false',
+            '-config', 'api.disablekey=true',
+            '-config', 'api.addrs.addr.name=.*',
+            '-config', 'api.addrs.addr.regex=true']
+        params.extend(extra_zap_params)   
         try:
-            cmd = path + "zap.sh -daemon -config api.disablekey=true -port {0}".format(
-                self.port
-            )
-            print(cmd)
-            subprocess.Popen(cmd.split(" "), stdout=open(os.devnull, "w"))
+            print(params)
+            subprocess.Popen(params, stdout=open(os.devnull, "w"))
             time.sleep(10)
         except IOError:
             print("ZAP Path is not configured correctly")
+            raise
 
     def start_gui_zap(self, path):
         """
@@ -404,6 +419,49 @@ class RoboZap(object):
         """
         write_report( os.path.join(export_dir, report_name), self.zap.core.xmlreport())    
     
+    def zap_get_report_defaults(self, target):
+        """
+        Returns a default dictionary for exporting a report
+        """
+        
+        report_defaults = {
+            'title': 'Vulnerability Report - {}'.format(target),
+            'extension': '.xhtml',
+            'description': 'Vulnerability report for the urls reference in scan of {}'.format(target),
+            'prepared_by': 'Zap Scanner',
+            'prepared_for': 'company',
+            'scan_date': datetime.now().strftime("%I:%M%p on %B %d, %Y"),
+            'report_date': datetime.now().strftime("%I:%M%p on %B %d, %Y"),
+            'scan_version': "N/A",
+            'report_version': "N/A",
+            'alert_severity': "t;t;t;t",
+            'alert_details': "t;t;t;t;t;t;t;t;f;f"}
+            
+        return report_defaults    
+        
+    def zap_export_new_report(self, export_file, report_settings):       
+        """
+        export a report to a specific file
+        """
+        report_name = "{}{}".format(export_file, report_settings['extension'])
+        source_info = "{title};{prepared_by};{prepared_for};{scan_date};{report_date};{scan_version};{report_version};{description}".format(**report_settings)
+        params = [
+            self.zap_exe, 
+            "-export_report", report_name,
+            "-source_info", source_info,
+            "-alert_severity", report_settings['alert_severity'],
+            "-alert_details", report_settings['alert_details'],
+            "-session", self.session,
+            "-cmd" ]
+            
+        try:
+            print(params)
+            subprocess.Popen(params, stdout=open(os.devnull, "w"))
+            time.sleep(10)
+        except IOError:
+            print("ZAP Path is not configured correctly")
+            raise            
+    
     def zap_export_report(
         self, export_file, export_format, report_title, report_author
     ):
@@ -493,3 +551,10 @@ class RoboZap(object):
         Shutdown process for ZAP Scanner
         """
         self.zap.core.shutdown()
+        for i in range(10):
+            try:
+                os.remove(self.session)
+                break
+            except:
+                time.sleep(1)
+                pass
