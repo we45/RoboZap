@@ -42,7 +42,8 @@ class RoboZap(object):
         self.port = port
         
         temp_name = next(tempfile._get_candidate_names())
-        tmp_dir = tempfile._get_default_tempdir()
+        #tmp_dir = tempfile._get_default_tempdir()
+        tmp_dir = os.getcwd()
         self.session = os.path.join(tmp_dir, temp_name)
         self.zap_exe = ""
 
@@ -309,22 +310,23 @@ class RoboZap(object):
         """
         return self.zap.context.urls(contextname)
         
-    def zap_write_to_json_file(self, base_url):
+    def zap_write_to_json_file(self, target):
         """
 
         Fetches all the results from zap.core.alerts() and writes to json file.
 
         Examples:
 
-        | zap write to json  | scan_id |
+        | zap write to json  | target |
 
         """
         core = self.zap.core
         all_vuls = []
-        for i, na in enumerate(core.alerts(baseurl=base_url)):
+        for i, na in enumerate(core.alerts(baseurl=target)):
             vul = {}
             vul["name"] = na["alert"]
             vul["confidence"] = na.get("confidence", "")
+            vul["risk_text"] = na.get("risk")
             if na.get("risk") == "High":
                 vul["severity"] = 3
             elif na.get("risk") == "Medium":
@@ -339,23 +341,18 @@ class RoboZap(object):
             vul["param"] = na.get("param", "")
             vul["attack"] = na.get("attack", "")
             vul["evidence"] = na.get("evidence", "")
+            vul["pluginId"] = na.get("pluginId", "")
             message_id = na.get("messageId", "")
             message = core.message(message_id)
-            if isinstance(message, dict):
-                request = base64.b64encode(
-                    "{0}{1}".format(message["requestHeader"], message["requestBody"])
-                )
-                response = base64.b64encode(
-                    "{0}{1}".format(message["responseHeader"], message["responseBody"])
-                )
-                vul["request"] = request
-                vul["response"] = response
+            if message:
+                vul["requestHeader"] = message["requestHeader"]
+                vul["responseHeader"] = message["responseHeader"]
                 vul["rtt"] = int(message["rtt"])
             all_vuls.append(vul)
 
         filename = "{0}.json".format(str(uuid.uuid4()))
-        with open(filename, "wb") as json_file:
-            json_file.write(json.dumps(all_vuls))
+        with open(filename, "w") as json_file:
+            json.dump(all_vuls, json_file, indent=2, separators=(',', ':'))
 
         return filename
 
@@ -421,12 +418,42 @@ class RoboZap(object):
     
     def zap_get_report_defaults(self, target):
         """
-        Returns a default dictionary for exporting a report
+        Returns a default dictionary for exporting a report.  To be used to send
+            into zap export report
+            
+            This can be used to turn on and off different aspects of the reports
+            for alert severity t and f are used to turn on (t) or off (f) a specific
+            function of the report.  See: https://www.zaproxy.org/docs/desktop/addons/export-report/
+            NOTE: Alert Severity is backwards in the documentation.
+            
+            alert_severity - 'f;t;t;t'  
+                Informational
+                Low
+                Medium
+                High
+                
+            alert_details - "t;t;t;t;t;t;t;t;f;f"
+               cwe id
+               wasc id
+               description
+               other info
+               solution
+               reference
+               request header
+               response header
+               request body
+               response body
+               
+               
+        Examples:
+        
+        | zap get report defaults  |  target  |
+        
         """
         
         report_defaults = {
             'title': 'Vulnerability Report - {}'.format(target),
-            'extension': '.xhtml',
+            'extension': 'xhtml',
             'description': 'Vulnerability report for the urls reference in scan of {}'.format(target),
             'prepared_by': 'Zap Scanner',
             'prepared_for': 'company',
@@ -438,64 +465,33 @@ class RoboZap(object):
             'alert_details': "t;t;t;t;t;t;t;t;f;f"}
             
         return report_defaults    
-        
-    def zap_export_new_report(self, export_file, report_settings):       
-        """
-        export a report to a specific file
-        """
-        report_name = "{}{}".format(export_file, report_settings['extension'])
-        source_info = "{title};{prepared_by};{prepared_for};{scan_date};{report_date};{scan_version};{report_version};{description}".format(**report_settings)
-        params = [
-            self.zap_exe, 
-            "-export_report", report_name,
-            "-source_info", source_info,
-            "-alert_severity", report_settings['alert_severity'],
-            "-alert_details", report_settings['alert_details'],
-            "-session", self.session,
-            "-cmd" ]
-            
-        try:
-            print(params)
-            subprocess.Popen(params, stdout=open(os.devnull, "w"))
-            time.sleep(10)
-        except IOError:
-            print("ZAP Path is not configured correctly")
-            raise            
+ 
     
-    def zap_export_report(
-        self, export_file, export_format, report_title, report_author
-    ):
+    def zap_export_report(self, export_file, report_settings):
         """
-        This functionality works on ZAP 2.7.0 only. It leverages the Export Report Library to generate a report.
-        Currently ExportReport doesnt have an API endpoint in python. We will be using the default ZAP REST API for this
+        This functionality works on ZAP > 2.7.0 with the export report plugin installed. 
+        It leverages the Export Report Library to generate a report.
+        Currently ExportReport doesnt have an API endpoint in python. We will be using the default ZAP REST API for this.
+        See zap_get_report_defaults for documentation on report_settings.
 
-        :param export_file: location to which the export needs to happen. Absolute path with the export file name and extension
-        :param export_format: file extension of the exported file. Can be XML, JSON, HTML, PDF, DOC
-        :param report_title: Title of the exported report
-        :param report_author: Name of the Author of the report
         Examples:
 
-        | zap export report | export_path | export_format |
+        | zap export report | export_file | report_settings |
 
         """
 
         url = "http://localhost:{0}/JSON/exportreport/action/generate/".format(
             self.port
         )
-        export_path = export_file
-        extension = export_format
-        report_time = datetime.now().strftime("%I:%M%p on %B %d, %Y")
-        source_info = "{0};{1};ZAP Team;{2};{3};v1;v1;{4}".format(
-            report_title, report_author, report_time, report_time, report_title
-        )
-        alert_severity = "t;t;t;t"  # High;Medium;Low;Info
-        alert_details = "t;t;t;t;t;t;t;t;t;t"  # CWEID;#WASCID;Description;Other Info;Solution;Reference;Request Header;Response Header;Request Body;Response Body
+        export_path = "{}.{}".format(export_file, report_settings['extension'])
+        source_info = "{title};{prepared_by};{prepared_for};{scan_date};{report_date};{scan_version};{report_version};{description}".format(**report_settings)
+        print("Alert Severity: {}".format(report_settings['alert_severity']))
         data = {
             "absolutePath": export_path,
-            "fileExtension": extension,
+            "fileExtension": report_settings['extension'],
             "sourceDetails": source_info,
-            "alertSeverity": alert_severity,
-            "alertDetails": alert_details,
+            "alertSeverity": report_settings['alert_severity'],
+            "alertDetails": report_settings['alert_details'],
         }
 
         r = requests.post(url, data=data)
