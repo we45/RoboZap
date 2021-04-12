@@ -17,3 +17,4 @@ dist/
 robozap/RoboZap.egg-info/
 venv/*
 .vscode/*
+venv
