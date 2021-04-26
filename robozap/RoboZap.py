@@ -2,10 +2,10 @@ import os
 from zapv2 import ZAPv2 as ZAP
 import time
 import subprocess
-import tempfile
 from robot.api import logger
 import base64
 import uuid
+import glob
 import json
 import requests
 from datetime import datetime
@@ -40,11 +40,11 @@ class RoboZap(object):
         """
         self.zap = ZAP(proxies={"http": proxy, "https": proxy})
         self.port = port
-        
-        temp_name = next(tempfile._get_candidate_names())
-        #tmp_dir = tempfile._get_default_tempdir()
+
+        temp_name = str(uuid.uuid4())
         tmp_dir = os.getcwd()
         self.session = os.path.join(tmp_dir, temp_name)
+        
         self.zap_exe = ""
 
     def start_headless_zap(self, path, extra_zap_params=[]):
@@ -547,10 +547,16 @@ class RoboZap(object):
         Shutdown process for ZAP Scanner
         """
         self.zap.core.shutdown()
-        for i in range(10):
+        time.sleep(5)
+        fileList = glob.glob("{}*".format(self.session), recursive=True)
+        for filePath in fileList:
             try:
-                os.remove(self.session)
-                break
+                os.remove(filePath)
             except:
                 time.sleep(1)
-                pass
+                print("Could not delete {}".format(filePath))
+        
+        #Reset the tempfile incase this gets resued
+        temp_name = str(uuid.uuid4())
+        tmp_dir = os.getcwd()
+        self.session = os.path.join(tmp_dir, temp_name)
