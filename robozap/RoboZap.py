@@ -237,7 +237,7 @@ class RoboZap(object):
         
         return self.zap.httpsessions.session_tokens(target)
         
-    def zap_start_spider(self, contextname, url):
+    def zap_start_spider(self, contextname, url, maxchildren=None, recurse=None, subtreeonly=None):
         """
         Start ZAP Spider with ZAP's inbuilt spider mode
 
@@ -248,7 +248,7 @@ class RoboZap(object):
         """
         try:
 
-            spider_id = self.zap.spider.scan(url=url, contextname=contextname)
+            spider_id = self.zap.spider.scan(url=url, contextname=contextname, maxchildren=maxchildren, recurse=recurse, subtreeonly=subtreeonly )
             time.sleep(2)
             return spider_id
         except Exception as e:
@@ -265,6 +265,14 @@ class RoboZap(object):
                 "Spider running at {0}%".format(int(self.zap.spider.status(spider_id)))
             )
             time.sleep(10)
+
+    def zap_spider_urls(self):
+        """
+        Fetches the urls returned by the spider
+        Examples:
+        | zap spider urls  | 
+        """
+        return self.zap.spider.all_urls
 
     def zap_start_ascan(self, context, url, policy="Default Policy"):
         """
@@ -309,7 +317,24 @@ class RoboZap(object):
         
         """
         return self.zap.context.urls(contextname)
+    
+    def zap_spider_urls_to_file(self, target):
+        """
+
+        Fetches all the urls that were spidered from zself.zap.spider.all_urls and writes to text file.
+
+        Examples:
+
+        | zap spider urls to file  | target |
+
+        """
         
+        spider_urls = self.zap.spider.all_urls
+        with open(target, "w") as f:
+            for i in spider_urls:
+                f.write(i)
+                f.write('\r\n')
+    
     def zap_write_to_json_file(self, target):
         """
 
