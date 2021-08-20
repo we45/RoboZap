@@ -1,4 +1,6 @@
 import os
+import ntpath
+import tarfile
 from zapv2 import ZAPv2 as ZAP
 import time
 import subprocess
@@ -334,6 +336,27 @@ class RoboZap(object):
             for i in spider_urls:
                 f.write(i)
                 f.write('\r\n')
+                
+    def zap_save_active_session(self, session_name, target):
+        """
+
+        Writes out the current session zips it up and saves it to the target.
+           session_name is full path to where we want to temporally export the session.
+           target is were we want the gzip file to go.
+
+        Examples:
+
+        | zap save active session  | session_name  |  target |
+
+        """
+        
+        results = self.zap.core.save_session(session_name)
+        filelist = glob.glob("{}*".format(session_name))
+        
+        with tarfile.open(target, mode="w:gz") as f:
+            for i in filelist:
+                f.add(i)
+                         
     
     def zap_write_to_json_file(self, target):
         """
