@@ -239,6 +239,18 @@ class RoboZap(object):
         
         return self.zap.httpsessions.session_tokens(target)
         
+    def zap_import_urls(self, target):
+        """
+        Import a list of URLs into ZAP from a text file.  One url pre line.  
+          File must be accessible from the ZAP command line.
+        
+        Examples:
+        
+        | zap import urls  |  target  |
+        
+        """    
+        return self.zap.importurls.importurls(target)
+        
     def zap_start_spider(self, contextname, url, maxchildren=None, recurse=None, subtreeonly=None):
         """
         Start ZAP Spider with ZAP's inbuilt spider mode
@@ -276,6 +288,36 @@ class RoboZap(object):
         """
         return self.zap.spider.all_urls
 
+    def zap_set_threads_per_host(self, threads):
+        """
+        Set the number of threads to use per host.  Be default it is set to 2.
+            Can speed up scanning but may overwhelm or logout the user.
+        
+        Examples:
+        
+        |  zap set threads per host  |  threads  |
+        
+        """
+        
+        self.zap.ascan.set_option_thread_per_host(threads)
+        time.sleep(1)
+        return self.zap.ascan.option_thread_per_host
+        
+    def zap_set_hosts_per_scan(self, hosts):
+        """
+        Set the number of hosts to scan at one time.  Be default it is set to 2.
+            Can speed up scanning but may overwhelm or logout the user.
+        
+        Examples:
+        
+        |  zap set host per scan  |  hosts  |
+        
+        """
+        
+        self.zap.ascan.set_option_host_per_scan(hosts)        
+        time.sleep(1)
+        return self.zap.ascan.option_host_per_scan
+        
     def zap_start_ascan(self, context, url, policy="Default Policy"):
         """
         Initiates ZAP Active Scan on the target url and context
