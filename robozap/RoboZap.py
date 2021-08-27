@@ -287,6 +287,37 @@ class RoboZap(object):
         | zap spider urls  | 
         """
         return self.zap.spider.all_urls
+        
+        
+    def zap_start_ajax_spider(self, contextname, url, inscope=None, subtreeonly=None):
+        """
+        Start ZAP AJAX Spider with ZAP.  Utilizes a browser.  Only works if it is installed and there is
+          a configured browser working.  
+
+        Examples:
+
+        | zap start ajax spider  | contextname  | 
+
+        """
+        try:
+            self.zap.ajaxSpider.scan(url=url, contextname=contextname, inscope=inscope, subtreeonly=subtreeonly )
+            time.sleep(2)
+        except Exception as e:
+            print((e.message))    
+
+    def zap_ajax_spider_status(self):
+        """
+        Get the status of the ajax spider.  unitl it's done running.
+
+        Examples:
+
+        | zap ajax spider status  |
+
+        """
+        while (self.zap.ajaxSpider.status != 'stopped'):
+            print('Ajax Spider is ' + self.zap.ajaxSpider.status)
+            time.sleep(5)   
+             
 
     def zap_set_threads_per_host(self, threads):
         """
@@ -378,6 +409,24 @@ class RoboZap(object):
             for i in spider_urls:
                 f.write(i)
                 f.write('\r\n')
+                
+    def zap_all_urls_to_file(self, target, baseurl=None):
+        """
+
+        Fetches all the urls that are in scope, adding base url will filter on that.
+
+        Examples:
+
+        | zap spider urls to file  | target |
+
+        """
+        
+        all_urls = self.zap.core.urls(baseurl)
+        with open(target, "w") as f:
+            for i in all_urls:
+                f.write(i)
+                f.write('\r\n')                
+                
                 
     def zap_save_active_session(self, session_name, target):
         """
