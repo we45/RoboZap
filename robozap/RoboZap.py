@@ -136,6 +136,18 @@ class RoboZap(object):
         
         """
         self.zap.context.exclude_from_context(contextname, regex)        
+
+    def zap_include_in_context(self, contextname, regex):
+        """
+        Provide a way to include urls in spider and scanning using a regex.
+          this is just a passthru.
+        
+        Examples:
+        
+        | zap include in context  |  contextname  |  regex  |
+        
+        """
+        self.zap.context.include_in_context(contextname, regex)   
         
     def zap_get_context_info(self, contextname):
         """
