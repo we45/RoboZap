@@ -20,8 +20,7 @@ setup(
     install_requires=[
         'requests>=2.18.4',
         'python-owasp-zap-v2.4>=0.0.14',
-        'robotframework>=3',
-        'boto3'
+        'robotframework>=3'
     ],
     long_description = long_description,
     long_description_content_type='text/markdown'

@@ -11,7 +11,6 @@ import glob
 import json
 import requests
 from datetime import datetime
-import boto3
 from six import binary_type
 
 def write_report(file_path, report):
@@ -650,19 +649,6 @@ class RoboZap(object):
             pass
         else:
             raise Exception("Unable to generate report")
-
-    def zap_write_to_s3_bucket(self, filename, bucket_name):
-        s3 = boto3.client("s3")
-        outfile_name = "ZAP-RESULT-{}.json".format(str(uuid.uuid4()))
-        s3.upload_file(filename, bucket_name, outfile_name)
-        logger.warn("Filename uploaded to S3 is: {}".format(outfile_name))
-
-    def retrieve_secret_from_ssm(self, secret, region="us-west-2", decrypt=True):
-        db = boto3.client("ssm", region_name=region)
-        param = db.get_parameter(Name=secret, WithDecryption=decrypt)["Parameter"][
-            "Value"
-        ]
-        return param
 
     def zap_load_script(
         self,
