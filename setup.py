@@ -18,7 +18,7 @@ setup(
     author_email='info@we45.com',
     description='Robot Framework Library for the OWASP ZAP Application Vulnerability Scanner' ,
     install_requires=[
-        'requests==2.18.4',
+        'requests==2.31.0',
         'python-owasp-zap-v2.4==0.0.14',
         'robotframework==3.0.4',
         'boto3==1.17.49'
